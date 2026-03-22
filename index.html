@@ -222,6 +222,7 @@
     <div class="header-right">
       <div class="sync-indicator"><div class="sync-dot" id="syncDot"></div><span id="syncTxt">Synced</span></div>
       <div class="header-badge">PERSONAL TRACKER 💅</div>
+      <button onclick="logout()" style="background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.35);color:#EF4444;border-radius:20px;padding:0.2rem 0.75rem;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.7rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">🔒 Logout</button>
     </div>
   </header>
 
@@ -366,6 +367,16 @@
     document.getElementById("passwordScreen").style.display="none";
     document.getElementById("splash").style.display="flex";
   }
+
+  window.logout = ()=>{
+    sessionStorage.removeItem(SESSION_KEY);
+    document.getElementById("app").style.display="none";
+    document.getElementById("passwordScreen").style.display="flex";
+    document.getElementById("passwordScreen").classList.remove("pw-out");
+    document.getElementById("pwInput").value="";
+    document.getElementById("pwError").textContent="";
+    showToast("Locked! See you soon, VP 💜🔒");
+  };
 
   // Splash emojis
   (()=>{
