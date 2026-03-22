@@ -345,6 +345,7 @@
       setTimeout(()=>{
         document.getElementById("passwordScreen").style.display="none";
         document.getElementById("splash").style.display="flex";
+        spawnEmojis();
       },500);
     } else {
       inp.classList.add("error");
@@ -366,6 +367,7 @@
   if(sessionStorage.getItem(SESSION_KEY)==="1"){
     document.getElementById("passwordScreen").style.display="none";
     document.getElementById("splash").style.display="flex";
+    spawnEmojis();
   }
 
   window.logout = ()=>{
@@ -378,9 +380,10 @@
     showToast("Locked! See you soon, VP 💜🔒");
   };
 
-  // Splash emojis
-  (()=>{
+  // Splash emojis — called after splash is shown
+  function spawnEmojis(){
     const bg=document.getElementById("splashBg");
+    if(!bg)return;
     const pool=["💜","💜","💜","💗","🐱","✨","🌟","🎤","🎵","💫","🌸","⭐","💝","🌙","🦋","🎊","💜","💚"];
     let n=0;
     const go=()=>{
@@ -397,7 +400,7 @@
       setTimeout(()=>el.remove(),(d+1)*1000);
       n++;setTimeout(go,120+Math.random()*200);
     };go();
-  })();
+  }
 
   window.enterApp=()=>{
     document.getElementById("splash").classList.add("splash-out");
