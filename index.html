@@ -27,6 +27,24 @@
   .splash-out{animation:splashExit 0.6s forwards;}
   @keyframes splashExit{from{opacity:1}to{opacity:0;transform:scale(1.05)}}
 
+  /* PASSWORD SCREEN */
+  #passwordScreen{position:fixed;inset:0;z-index:10000;background:linear-gradient(135deg,#0F0A1E,#1a0533,#0d1a3a);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;gap:0;}
+  .pw-logo{font-family:'Black Han Sans',sans-serif;font-size:clamp(2rem,8vw,3.5rem);background:linear-gradient(90deg,#7C3AED,#EC4899,#06B6D4,#FBBF24,#7C3AED);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 2s linear infinite;text-align:center;line-height:1.2;margin-bottom:0.3rem;}
+  .pw-sub{font-size:0.95rem;color:var(--sub);font-weight:700;margin-bottom:2rem;text-align:center;letter-spacing:0.05em;}
+  .pw-box{background:var(--card);border-radius:20px;padding:2rem;width:100%;max-width:360px;border:1px solid rgba(124,58,237,0.35);box-shadow:0 8px 40px rgba(124,58,237,0.2);}
+  .pw-label{font-size:0.72rem;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;display:block;}
+  .pw-input-wrap{position:relative;margin-bottom:0.5rem;}
+  .pw-input{width:100%;background:var(--card2);border:1.5px solid rgba(124,58,237,0.3);border-radius:12px;padding:0.75rem 3rem 0.75rem 1rem;color:var(--text);font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;outline:none;transition:border-color 0.2s,box-shadow 0.2s;letter-spacing:0.1em;}
+  .pw-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,0.2);}
+  .pw-input.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(239,68,68,0.2);animation:shake 0.4s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .pw-toggle{position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--sub);}
+  .pw-error{font-size:0.78rem;color:var(--red);font-weight:700;min-height:1.1rem;margin-bottom:0.8rem;}
+  .pw-btn{width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--purple),var(--pink));border:none;border-radius:12px;color:white;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;cursor:pointer;box-shadow:0 4px 15px rgba(124,58,237,0.4);transition:transform 0.2s,box-shadow 0.2s;}
+  .pw-btn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(124,58,237,0.6);}
+  .pw-hint{margin-top:1rem;text-align:center;font-size:0.75rem;color:var(--sub);font-weight:600;}
+  .pw-out{animation:splashExit 0.5s forwards;}
+
   /* LOADING */
   #loadingOverlay{position:fixed;inset:0;z-index:8888;background:rgba(10,6,20,0.9);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
   #loadingOverlay.show{display:flex;}
@@ -161,8 +179,24 @@
 </head>
 <body>
 
+<!-- PASSWORD SCREEN -->
+<div id="passwordScreen">
+  <div class="pw-logo">💜 VP's<br>Wallet</div>
+  <div class="pw-sub">✨ Private & Secure ✨</div>
+  <div class="pw-box">
+    <label class="pw-label">Enter Password</label>
+    <div class="pw-input-wrap">
+      <input class="pw-input" id="pwInput" type="password" placeholder="••••••••••" onkeydown="if(event.key==='Enter')checkPassword()">
+      <button class="pw-toggle" onclick="togglePwVisibility()" id="pwToggle">👁️</button>
+    </div>
+    <div class="pw-error" id="pwError"></div>
+    <button class="pw-btn" onclick="checkPassword()">Unlock 💜</button>
+    <div class="pw-hint">Only Vishnu Priya knows this 🐱</div>
+  </div>
+</div>
+
 <!-- SPLASH -->
-<div id="splash">
+<div id="splash" style="display:none">
   <div class="splash-bg" id="splashBg"></div>
   <div class="splash-logo">Hey 💜<br>Vishnu Priya!</div>
   <div class="splash-sub">✨ Your Personal Expense Tracker ✨</div>
@@ -295,6 +329,43 @@
   const setSyncing=()=>{document.getElementById("syncDot").className="sync-dot syncing";document.getElementById("syncTxt").textContent="Syncing…";};
   const setSynced=()=>{document.getElementById("syncDot").className="sync-dot";document.getElementById("syncTxt").textContent="Synced ✓";};
   const setSyncErr=()=>{document.getElementById("syncDot").className="sync-dot error";document.getElementById("syncTxt").textContent="Offline";};
+
+  // ── PASSWORD ──
+  const CORRECT_PW = "vishnu123";
+  const SESSION_KEY = "vp_unlocked";
+
+  function checkPassword(){
+    const val = document.getElementById("pwInput").value;
+    const inp = document.getElementById("pwInput");
+    const err = document.getElementById("pwError");
+    if(val === CORRECT_PW){
+      sessionStorage.setItem(SESSION_KEY,"1");
+      document.getElementById("passwordScreen").classList.add("pw-out");
+      setTimeout(()=>{
+        document.getElementById("passwordScreen").style.display="none";
+        document.getElementById("splash").style.display="flex";
+      },500);
+    } else {
+      inp.classList.add("error");
+      err.textContent = "Wrong password! Try again 🔒";
+      setTimeout(()=>inp.classList.remove("error"),500);
+      inp.value="";inp.focus();
+    }
+  }
+  window.checkPassword = checkPassword;
+
+  window.togglePwVisibility = ()=>{
+    const inp = document.getElementById("pwInput");
+    const btn = document.getElementById("pwToggle");
+    if(inp.type==="password"){ inp.type="text"; btn.textContent="🙈"; }
+    else { inp.type="password"; btn.textContent="👁️"; }
+  };
+
+  // Check if already unlocked this session
+  if(sessionStorage.getItem(SESSION_KEY)==="1"){
+    document.getElementById("passwordScreen").style.display="none";
+    document.getElementById("splash").style.display="flex";
+  }
 
   // Splash emojis
   (()=>{
